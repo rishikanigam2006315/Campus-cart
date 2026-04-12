@@ -17,8 +17,21 @@ public class AuthController {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
+//    @PostMapping("/signup")
+//    public User signup(@RequestBody User user) {
+//        return userRepository.save(user);
+//    }
+
     @PostMapping("/signup")
     public User signup(@RequestBody User user) {
+
+        if(userRepository.findByEmail(user.getEmail()).isPresent()){
+            throw new RuntimeException("Email already registered");
+        }
+
+        user.setEnabled(true);
+        user.setRole("ROLE_USER");
+
         return userRepository.save(user);
     }
 
