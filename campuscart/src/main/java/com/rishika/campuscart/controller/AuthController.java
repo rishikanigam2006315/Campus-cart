@@ -22,18 +22,31 @@ public class AuthController {
         return userRepository.save(user);
     }
 
+//    @PostMapping("/login")
+//    public String login(@RequestBody User user) {
+//
+//        Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
+//
+//        if (existingUser.isEmpty()) {
+//            throw new RuntimeException("User not found");
+//        }
+//
+//        User existing = existingUser.get();
+//
+//        if (!existing.getPassword().equals(user.getPassword())) {
+//            throw new RuntimeException("Invalid password");
+//        }
+//
+//        return jwtUtil.generateToken(existing.getEmail());
+//    }
+
     @PostMapping("/login")
     public String login(@RequestBody User user) {
 
-        Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
+        User existing = userRepository.findByEmail(user.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (existingUser.isEmpty()) {
-            throw new RuntimeException("User not found");
-        }
-
-        User existing = existingUser.get();
-
-        if (!existing.getPassword().equals(user.getPassword())) {
+        if (existing.getPassword() == null || !existing.getPassword().equals(user.getPassword())) {
             throw new RuntimeException("Invalid password");
         }
 
