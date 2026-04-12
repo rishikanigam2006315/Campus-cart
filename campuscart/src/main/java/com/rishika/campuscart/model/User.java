@@ -23,5 +23,7 @@ public class User {
 
     private String college;
 
+    private Boolean enabled;
+
     private String role;
 }
