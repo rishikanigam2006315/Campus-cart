@@ -4,7 +4,9 @@ import com.rishika.campuscart.model.User;
 import com.rishika.campuscart.repository.UserRepository;
 import com.rishika.campuscart.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -41,8 +43,14 @@ public class AuthController {
         System.out.println("EMAIL: " + user.getEmail());
         System.out.println("PASSWORD RECEIVED: " + user.getPassword());
 
+//        if(userRepository.findByEmail(user.getEmail()).isPresent()){
+//            throw new RuntimeException("Email already registered");
+//        }
         if(userRepository.findByEmail(user.getEmail()).isPresent()){
-            throw new RuntimeException("Email already registered");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Email already registered"
+            );
         }
 
         user.setEnabled(true);
