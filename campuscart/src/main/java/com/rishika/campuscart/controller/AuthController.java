@@ -22,8 +22,24 @@ public class AuthController {
 //        return userRepository.save(user);
 //    }
 
+//    @PostMapping("/signup")
+//    public User signup(@RequestBody User user) {
+//
+//        if(userRepository.findByEmail(user.getEmail()).isPresent()){
+//            throw new RuntimeException("Email already registered");
+//        }
+//
+//        user.setEnabled(true);
+//        user.setRole("ROLE_USER");
+//
+//        return userRepository.save(user);
+//    }
+
     @PostMapping("/signup")
     public User signup(@RequestBody User user) {
+
+        System.out.println("EMAIL: " + user.getEmail());
+        System.out.println("PASSWORD RECEIVED: " + user.getPassword());
 
         if(userRepository.findByEmail(user.getEmail()).isPresent()){
             throw new RuntimeException("Email already registered");
