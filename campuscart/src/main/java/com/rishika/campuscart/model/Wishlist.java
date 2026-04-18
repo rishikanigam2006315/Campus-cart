@@ -12,6 +12,5 @@ public class Wishlist {
     private Long id;
 
     private Long userId;
-
     private Long productId;
 }
