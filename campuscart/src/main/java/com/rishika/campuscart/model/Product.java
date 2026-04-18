@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
+@Table(name = "product")
 @Data
 public class Product {
 
@@ -17,13 +18,16 @@ public class Product {
 
     private double price;
 
+    @Column(name = "image_url")
     private String imageUrl;
 
     private String location;
 
+    @Column(name = "seller_id")
     private Long sellerId;
 
     private String category;
 
+    @Column(name = "created_at")
     private String createdAt;
 }
