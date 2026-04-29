@@ -57,7 +57,16 @@ public class AuthController {
         user.setEnabled(true);
         user.setRole("ROLE_USER");
 
-        return userRepository.save(user);
+        try {
+            return userRepository.save(user);
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "User already exists or DB error"
+            );
+        }
+
+        //return userRepository.save(user);
     }
 
 //    @PostMapping("/login")
