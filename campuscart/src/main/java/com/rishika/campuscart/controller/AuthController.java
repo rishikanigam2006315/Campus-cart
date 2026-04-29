@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -78,7 +79,7 @@ public class AuthController {
 //    }
 
     @PostMapping("/login")
-    public String login(@RequestBody User user) {
+    public Map<String, String> login(@RequestBody User user) {
 
         User existing = userRepository.findByEmail(user.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -86,7 +87,10 @@ public class AuthController {
         if (existing.getPassword() == null || !existing.getPassword().equals(user.getPassword())) {
             throw new RuntimeException("Invalid password");
         }
+        String token = jwtUtil.generateToken(existing.getEmail());
 
-        return jwtUtil.generateToken(existing.getEmail());
+        return Map.of("token", token);
+
+        //return jwtUtil.generateToken(existing.getEmail());
     }
 }
