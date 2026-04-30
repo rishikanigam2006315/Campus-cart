@@ -3,6 +3,8 @@ package com.rishika.campuscart.controller;
 import com.rishika.campuscart.model.Product;
 import com.rishika.campuscart.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -88,8 +90,25 @@ public class ProductController {
 
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        return "/uploads/" + fileName;
+//        return "/uploads/" + fileName;
+//    }
+        return "https://campus-cart-rjnx.onrender.com/api/products/uploads/" + fileName;
     }
+
+    // 🔥 IMAGE SERVE (MOST IMPORTANT FIX)
+    @GetMapping("/uploads/{filename}")
+    public Resource getImage(@PathVariable String filename) throws IOException {
+
+        Path path = Paths.get("uploads/" + filename);
+        Resource resource = new UrlResource(path.toUri());
+
+        if (!resource.exists()) {
+            throw new RuntimeException("File not found");
+        }
+
+        return resource;
+    }
+
     @GetMapping("/price")
     public List<Product> filterByPrice(
             @RequestParam Double minPrice,
