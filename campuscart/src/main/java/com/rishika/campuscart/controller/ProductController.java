@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,7 +19,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/products")
@@ -75,12 +78,12 @@ public class ProductController {
         return productService.getUserProducts(userId);
     }
     @PostMapping("/upload")
-    public String uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
 
         String uploadDir = "uploads/";
 
         File directory = new File(uploadDir);
-        if(!directory.exists()){
+        if (!directory.exists()) {
             directory.mkdirs();
         }
 
@@ -90,9 +93,12 @@ public class ProductController {
 
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-//        return "/uploads/" + fileName;
-//    }
-        return "https://campus-cart-rjnx.onrender.com/api/products/uploads/" + fileName;
+        String imageUrl = "https://campus-cart-rjnx.onrender.com/api/products/uploads/" + fileName;
+
+        Map<String, String> response = new HashMap<>();
+        response.put("url", imageUrl);
+
+        return ResponseEntity.ok(response);
     }
 
     // 🔥 IMAGE SERVE (MOST IMPORTANT FIX)
