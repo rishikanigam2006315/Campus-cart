@@ -47,8 +47,12 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable Long id){
+    public ResponseEntity<Map<String, String>> deleteProduct(@PathVariable Long id){
         productService.deleteProduct(id);
+
+        return ResponseEntity.ok(
+                Map.of("message", "Product deleted successfully")
+        );
     }
 
     @PutMapping("/{id}")
@@ -96,12 +100,11 @@ public class ProductController {
         String imageUrl = "https://campus-cart-rjnx.onrender.com/api/products/uploads/" + fileName;
 
         Map<String, String> response = new HashMap<>();
-        response.put("url", imageUrl);
+        response.put("uri", imageUrl);
 
         return ResponseEntity.ok(response);
     }
 
-    // 🔥 IMAGE SERVE (MOST IMPORTANT FIX)
     @GetMapping("/uploads/{filename}")
     public Resource getImage(@PathVariable String filename) throws IOException {
 

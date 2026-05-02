@@ -5,11 +5,11 @@ import com.rishika.campuscart.repository.UserRepository;
 import com.rishika.campuscart.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -19,35 +19,14 @@ public class AuthController {
 
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
-//    @PostMapping("/signup")
-//    public User signup(@RequestBody User user) {
-//        return userRepository.save(user);
-//    }
-
-//    @PostMapping("/signup")
-//    public User signup(@RequestBody User user) {
-//
-//        if(userRepository.findByEmail(user.getEmail()).isPresent()){
-//            throw new RuntimeException("Email already registered");
-//        }
-//
-//        user.setEnabled(true);
-//        user.setRole("ROLE_USER");
-//
-//        return userRepository.save(user);
-//    }
-
+    // 🔥 SIGNUP
     @PostMapping("/signup")
     public User signup(@RequestBody User user) {
 
-        System.out.println("EMAIL: " + user.getEmail());
-        System.out.println("PASSWORD RECEIVED: " + user.getPassword());
-
-//        if(userRepository.findByEmail(user.getEmail()).isPresent()){
-//            throw new RuntimeException("Email already registered");
-//        }
-        if(userRepository.findByEmail(user.getEmail()).isPresent()){
+        // Email already exists check
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Email already registered"
@@ -57,49 +36,40 @@ public class AuthController {
         user.setEnabled(true);
         user.setRole("ROLE_USER");
 
-        try {
-            return userRepository.save(user);
-        } catch (Exception e) {
+        // 🔐 Password encode (VERY IMPORTANT)
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        User savedUser = userRepository.save(user);
+
+        // 🔒 Hide password in response
+        savedUser.setPassword(null);
+
+        return savedUser;
+    }
+
+    // 🔥 LOGIN
+    @PostMapping("/login")
+    public Map<String, Object> login(@RequestBody User user) {
+
+        User existing = userRepository.findByEmail(user.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED, "User not found"
+                ));
+
+        // 🔐 Check encoded password
+        if (!passwordEncoder.matches(user.getPassword(), existing.getPassword())) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "User already exists or DB error"
+                    HttpStatus.UNAUTHORIZED, "Invalid password"
             );
         }
 
-        //return userRepository.save(user);
-    }
-
-//    @PostMapping("/login")
-//    public String login(@RequestBody User user) {
-//
-//        Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
-//
-//        if (existingUser.isEmpty()) {
-//            throw new RuntimeException("User not found");
-//        }
-//
-//        User existing = existingUser.get();
-//
-//        if (!existing.getPassword().equals(user.getPassword())) {
-//            throw new RuntimeException("Invalid password");
-//        }
-//
-//        return jwtUtil.generateToken(existing.getEmail());
-//    }
-
-    @PostMapping("/login")
-    public Map<String, String> login(@RequestBody User user) {
-
-        User existing = userRepository.findByEmail(user.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (existing.getPassword() == null || !existing.getPassword().equals(user.getPassword())) {
-            throw new RuntimeException("Invalid password");
-        }
+        // 🔥 Generate JWT token
         String token = jwtUtil.generateToken(existing.getEmail());
 
-        return Map.of("token", token);
-
-        //return jwtUtil.generateToken(existing.getEmail());
+        // 🔥 IMPORTANT: Send userId also
+        return Map.of(
+                "token", token,
+                "userId", existing.getId()
+        );
     }
 }
