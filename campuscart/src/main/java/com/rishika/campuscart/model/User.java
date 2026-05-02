@@ -27,4 +27,6 @@ public class User {
     private Boolean enabled;
 
     private String role;
+
+    private String fcmToken;
 }

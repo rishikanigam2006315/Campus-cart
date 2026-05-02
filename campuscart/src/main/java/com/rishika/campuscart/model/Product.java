@@ -3,6 +3,8 @@ package com.rishika.campuscart.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Entity
 @Table(name = "product")
 @Data
@@ -18,8 +20,11 @@ public class Product {
 
     private double price;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+    @ElementCollection
+    private List<String> imageUrls;
+
+//    @Column(name = "image_url")
+//    private String imageUrl;
 
     private String location;
 
