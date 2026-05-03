@@ -1,5 +1,6 @@
 package com.rishika.campuscart.controller;
 
+import com.cloudinary.Cloudinary;
 import com.rishika.campuscart.model.Product;
 import com.rishika.campuscart.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ import java.util.Map;
 public class ProductController {
 
     private final ProductService productService;
+    private final Cloudinary cloudinary;
 
     @GetMapping
     public List<Product> getProducts(){
@@ -81,42 +83,64 @@ public class ProductController {
     public List<Product> getUserProducts(@PathVariable Long userId){
         return productService.getUserProducts(userId);
     }
+
     @PostMapping("/upload")
-    public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<Map<String, String>> uploadImage(
+            @RequestParam("file") MultipartFile file) {
 
-        String uploadDir = "uploads/";
+        try {
+            Map uploadResult = cloudinary.uploader().upload(
+                    file.getBytes(),
+                    Map.of("folder", "campus_cart")
+            );
 
-        File directory = new File(uploadDir);
-        if (!directory.exists()) {
-            directory.mkdirs();
+            String imageUrl = uploadResult.get("secure_url").toString();
+
+            return ResponseEntity.ok(Map.of("url", imageUrl));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500)
+                    .body(Map.of("error", "Upload failed"));
         }
-
-        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-
-        Path filePath = Paths.get(uploadDir + fileName);
-
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-        String imageUrl = "https://campus-cart-rjnx.onrender.com/api/products/uploads/" + fileName;
-
-        Map<String, String> response = new HashMap<>();
-        response.put("uri", imageUrl);
-
-        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/uploads/{filename}")
-    public Resource getImage(@PathVariable String filename) throws IOException {
+//    @PostMapping("/upload")
+//    public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
+//
+//        String uploadDir = "uploads/";
+//
+//        File directory = new File(uploadDir);
+//        if (!directory.exists()) {
+//            directory.mkdirs();
+//        }
+//
+//        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+//
+//        Path filePath = Paths.get(uploadDir + fileName);
+//
+//        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+//
+//        String imageUrl = "https://campus-cart-rjnx.onrender.com/api/products/uploads/" + fileName;
+//
+//        Map<String, String> response = new HashMap<>();
+//        response.put("uri", imageUrl);
+//
+//        return ResponseEntity.ok(response);
+//    }
 
-        Path path = Paths.get("uploads/" + filename);
-        Resource resource = new UrlResource(path.toUri());
-
-        if (!resource.exists()) {
-            throw new RuntimeException("File not found");
-        }
-
-        return resource;
-    }
+//    @GetMapping("/uploads/{filename}")
+//    public Resource getImage(@PathVariable String filename) throws IOException {
+//
+//        Path path = Paths.get("uploads/" + filename);
+//        Resource resource = new UrlResource(path.toUri());
+//
+//        if (!resource.exists()) {
+//            throw new RuntimeException("File not found");
+//        }
+//
+//        return resource;
+//    }
 
     @GetMapping("/price")
     public List<Product> filterByPrice(
