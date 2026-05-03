@@ -41,8 +41,31 @@ public class UserController {
                 "name", user.getName(),
                 "email", user.getEmail(),
                 "college", user.getCollege(),
-                "averageRating", avgRating
+                "averageRating", avgRating,
+                "profileImageUrl", user.getProfileImageUrl() != null ? user.getProfileImageUrl() : ""
         );
+    }
+
+    @PostMapping("/profile-image")
+    public Map<String, String> saveProfileImage(
+            @RequestParam Long userId,
+            @RequestBody Map<String, String> body){
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "User not found"
+                ));
+
+        String imageUrl = body.get("imageUrl");
+
+        if (imageUrl == null || imageUrl.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image URL required");
+        }
+
+        user.setProfileImageUrl(imageUrl);
+        userRepository.save(user);
+
+        return Map.of("message", "Profile image updated");
     }
 
     @PostMapping("/fcm-token")
