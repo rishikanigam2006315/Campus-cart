@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/favorites")
@@ -20,7 +21,6 @@ public class FavoriteController {
 
     @PostMapping("/{productId}")
     public void addFavorite(@PathVariable Long productId, @RequestParam Long userId) {
-
         if (favoriteRepository.findByUserIdAndProductId(userId, productId).isEmpty()) {
             Favorite fav = new Favorite();
             fav.setUserId(userId);
@@ -40,7 +40,14 @@ public class FavoriteController {
         List<Favorite> favs = favoriteRepository.findByUserId(userId);
 
         return favs.stream()
-                .map(f -> productService.getProductById(f.getProductId()))
+                .map(f -> {
+                    try {
+                        return productService.getProductById(f.getProductId());
+                    } catch (Exception e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
                 .toList();
     }
 }
