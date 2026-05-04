@@ -5,6 +5,7 @@ import com.rishika.campuscart.model.Product;
 import com.rishika.campuscart.repository.FavoriteRepository;
 import com.rishika.campuscart.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class FavoriteController {
         }
     }
 
+    @Transactional
     @DeleteMapping("/{productId}")
     public void removeFavorite(@PathVariable Long productId, @RequestParam Long userId) {
         favoriteRepository.deleteByUserIdAndProductId(userId, productId);
