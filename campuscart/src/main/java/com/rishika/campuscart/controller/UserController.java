@@ -4,6 +4,7 @@ import com.rishika.campuscart.model.Rating;
 import com.rishika.campuscart.model.User;
 import com.rishika.campuscart.repository.RatingRepository;
 import com.rishika.campuscart.repository.UserRepository;
+import com.rishika.campuscart.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final RatingRepository ratingRepository;
+    private final UserService userService;
 
     @GetMapping("/profile/{id}")
     public Map<String, Object> getUserProfile(@PathVariable Long id){
@@ -79,5 +81,33 @@ public class UserController {
 
         user.setFcmToken(body.get("token"));
         userRepository.save(user);
+    }
+
+    @PostMapping("/change-password")
+    public Map<String, String> changePassword(
+            @RequestBody Map<String, String> body){
+
+        Long userId = Long.parseLong(body.get("userId"));
+
+        String currentPassword = body.get("currentPassword");
+
+        String newPassword = body.get("newPassword");
+
+        String message = userService.changePassword(
+                userId,
+                currentPassword,
+                newPassword
+        );
+
+        return Map.of("message", message);
+    }
+
+    @DeleteMapping("/delete-account/{id}")
+    public Map<String, String> deleteAccount(
+            @PathVariable Long id){
+
+        String message = userService.deleteAccount(id);
+
+        return Map.of("message", message);
     }
 }
