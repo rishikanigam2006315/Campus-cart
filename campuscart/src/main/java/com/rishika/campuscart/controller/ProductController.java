@@ -104,44 +104,6 @@ public class ProductController {
                     .body(Map.of("error", "Upload failed"));
         }
     }
-
-//    @PostMapping("/upload")
-//    public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
-//
-//        String uploadDir = "uploads/";
-//
-//        File directory = new File(uploadDir);
-//        if (!directory.exists()) {
-//            directory.mkdirs();
-//        }
-//
-//        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-//
-//        Path filePath = Paths.get(uploadDir + fileName);
-//
-//        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-//
-//        String imageUrl = "https://campus-cart-rjnx.onrender.com/api/products/uploads/" + fileName;
-//
-//        Map<String, String> response = new HashMap<>();
-//        response.put("uri", imageUrl);
-//
-//        return ResponseEntity.ok(response);
-//    }
-
-//    @GetMapping("/uploads/{filename}")
-//    public Resource getImage(@PathVariable String filename) throws IOException {
-//
-//        Path path = Paths.get("uploads/" + filename);
-//        Resource resource = new UrlResource(path.toUri());
-//
-//        if (!resource.exists()) {
-//            throw new RuntimeException("File not found");
-//        }
-//
-//        return resource;
-//    }
-
     @GetMapping("/price")
     public List<Product> filterByPrice(
             @RequestParam Double minPrice,

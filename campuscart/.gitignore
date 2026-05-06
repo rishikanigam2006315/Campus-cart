@@ -43,3 +43,5 @@ application.properties
 
 # environment files
 .env
+
+src/main/resources/serviceAccountKey.json

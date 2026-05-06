@@ -16,14 +16,21 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final NotificationService notificationService;
 
     public List<Product> getAllProducts(){
         return productRepository.findAll();
     }
 
     public Product addProduct(Product product){
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+        notificationService.sendNewProductNotification(savedProduct.getTitle(), savedProduct.getPrice());
+
+        return savedProduct;
     }
+//   // public Product addProduct(Product product){
+//        return productRepository.save(product);
+//    }
 
     public Product getProductById(Long id){
         return productRepository.findById(id).orElse(null);
